@@ -29,6 +29,8 @@ class Graph {
    public:
     string stateName;
     vector<Action*> actionList;
+    State* pi;
+    int weight;
     State(string);
     ~State();
   };
@@ -47,12 +49,16 @@ class Graph {
   void transformState(string, string, State*, queue<State*>&, char, string);
   void ExpandLeft(State*, queue<State*>&);
   void ExpandRight(State*, queue<State*>&);
+  bool iterativeDeepening(int);
+  void backtrack(State*);
   vector<State*> stateSpace;
   vector<Action*> actionSpace;
   State* root;
+  State* goal;
  public:
   Graph(string, string);
   ~Graph();
+  void backtrackGoalState();
   void printStateSpaceSize();
   void printStateSpaceEdges();
 

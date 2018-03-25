@@ -6,6 +6,8 @@ int main(int argc, char** argv) {
   //Graph newGraph(argv[1], argv[2]);
   newGraph.printStateSpaceSize();
   newGraph.printStateSpaceEdges();
+  cout << "======================================" << endl;
+  newGraph.backtrackGoalState();
 }
 
 
@@ -18,6 +20,7 @@ Graph::Graph(string initialState, string goalState) {
   State* initial = new State(initialState);
   root = initial;
   State* goal = new State(goalState);
+  this->goal = goal;
   stateSpace.push_back(initial);
   stateSpace.push_back(goal);
   Expand(initial, goal);
@@ -36,6 +39,13 @@ Graph::~Graph() {
     actionSpace.pop_back();
     delete (Action*) temp;
   }
+}
+
+
+void Graph::backtrackGoalState() {
+  int count = 0;
+  while (!iterativeDeepening(count++));
+  backtrack(goal);
 }
 
 
@@ -217,6 +227,48 @@ void Graph::ExpandRight(State* initialState, queue<State*> &stateQueue) {
   } 
 }
 
+
+bool Graph::iterativeDeepening(int depth) {
+  for (unsigned int i = 0; i < stateSpace.size(); i++) {
+    stateSpace[i]->pi = NULL;
+    stateSpace[i]->weight = -1;
+  }
+
+  State* currentState;
+  root->pi = root;
+  root->weight = 0;
+
+  queue<State*> dfsQueue;
+  dfsQueue.push(root);
+
+  while (!dfsQueue.empty()) {
+    currentState = dfsQueue.front();
+    dfsQueue.pop();
+    if (currentState == goal)
+      return true;
+    if (currentState->weight < depth) {
+      for (unsigned int i = 0; i < currentState->actionList.size(); i++) {
+        if (currentState->actionList[i]->v->weight == -1) {
+          currentState->actionList[i]->v->weight = currentState->weight + 1;
+          currentState->actionList[i]->v->pi = currentState;
+          dfsQueue.push(currentState->actionList[i]->v);
+        }
+      }
+    }
+  }
+  return false;
+}
+
+
+void Graph::backtrack(State* currentState) {
+  if (currentState->pi == currentState) {
+    cout << currentState->stateName << endl;
+  } else {
+    backtrack(currentState->pi);
+    cout << currentState->stateName << endl;
+  }
+  return;
+}
 
 //----------------------------------------------------------------------------
 // State member fucntions
